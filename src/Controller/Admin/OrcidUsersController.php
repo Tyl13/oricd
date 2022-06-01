@@ -8,7 +8,6 @@ use App\Model\Entity\OrcidStatusType;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\FrozenTime;
 use Cake\Collection\Collection;
-use Cake\Core\Configure;
 
 use function PHPUnit\Framework\equalTo;
 
@@ -28,13 +27,6 @@ class OrcidUsersController extends AppController
     private const NULL_STRING_ID = '-1';
     private const NULL_ID = -1;
 
-    private $ldapHandler;
-
-    public function initialize(): void
-    {
-        parent::initialize();
-        $this->ldapHandler = new \LdapUtility\Ldap(Configure::read('ldapUtility.ldap'));
-    }
     /**
      * Index method
      *
@@ -59,21 +51,7 @@ class OrcidUsersController extends AppController
         $orcidUser = $this->OrcidUsers->get($id, [
             'contain' => ['OrcidEmails', 'CurrentOrcidStatus.OrcidStatusTypes', 'AllOrcidStatuses.OrcidStatusTypes'],
         ]);
-        xdebug_break();
-        $ldapResult = $this->ldapHandler->find('search', [
-            'filter' => 'cn='.$orcidUser->username,
-            'attributes' => [
-                'samaccountname', 
-                'dn',
-                'givenName',
-                'sn',
-                'mail',
-                'displayName',
-                'department',
-                'PittEmployeeRC',
-            ],
-        ]);
-        $orcidUser->set("Test", $ldapResult);
+
         $this->set(compact('orcidUser'));
     }
 
